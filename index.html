@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Left-Handed Mobile UX Study</title>
+  <script src="https://tally.so/widgets/embed.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 32px 24px;
+      box-sizing: border-box;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 14px;
+    }
+    .meta {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 28px;
+    }
+    button {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 0;
+      border-radius: 999px;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+      cursor: pointer;
+    }
+    button:active {
+      transform: scale(0.97);
+    }
+    .consent-note {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Left-Handed Mobile UX Study</h1>
+
+    <p>
+      This study looks at how mobile interfaces can be made more comfortable
+      for left-handed users. You'll try 8 short interactive mockups
+      (4 pairs, each with a standard version and a left-hand-adjusted
+      version) and answer a few quick questions after each one.
+    </p>
+
+    <p class="meta">
+      Takes about 10–15 minutes. Best experienced on a smartphone.
+      Your responses are anonymous and used only for academic research
+      purposes as part of a master's thesis.
+    </p>
+
+    <button id="startBtn">Start</button>
+
+    <p class="consent-note">
+      By tapping Start, you agree to take part in this voluntary,
+      anonymous study. You may stop at any time by simply closing
+      this page.
+    </p>
+  </div>
+
+  <script>
+    // Keep this in sync with tallyFlow.ts's PROTOTYPE_URLS in each prototype repo.
+    const PROTOTYPE_URLS = {
+      amazon_nav_baseline: 'https://you.github.io/amazon-nav/',
+      amazon_nav_variant:  'https://you.github.io/amazon-nav-left/',
+      settings_baseline:   'https://you.github.io/settings/',
+      settings_variant:    'https://you.github.io/settings-left/',
+      control_center_baseline: 'https://schmutterers-schmiede.github.io/MA-iosControlCenter-Right/',
+      control_center_variant:  'https://schmutterers-schmiede.github.io/MA-iosControlCenter-Left/',
+      onehand_baseline:    'https://you.github.io/onehand/',
+      onehand_variant:     'https://you.github.io/onehand-left/',
+    };
+
+    const PAIRS = ['amazon_nav', 'settings', 'control_center', 'onehand'];
+    const GRIP_TYPES = ['sh', 'sb', 'abt', 'abf'];
+    const DEMOGRAPHICS_FORM_ID = 'DEMOGRAPHICS_FORM_ID'; // TODO: replace with real form ID
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function firstPrototypeUrl(pid, order, grip) {
+      const firstPair = order[0];
+      const base = PROTOTYPE_URLS[`${firstPair}_baseline`];
+      const sep = base.includes('?') ? '&' : '?';
+      return `${base}${sep}pid=${pid}&order=${order.join(',')}&step=0&grip=${grip}`;
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      const pid = crypto.randomUUID();
+      const order = shuffle(PAIRS);
+      const grip = pickRandom(GRIP_TYPES);
+
+      window.Tally.openPopup(DEMOGRAPHICS_FORM_ID, {
+        layout: 'modal',
+        hiddenFields: {
+          pid: pid,
+          order: order.join(','),
+          grip_type: grip,
+        },
+        onSubmit: () => {
+          window.location.href = firstPrototypeUrl(pid, order, grip);
+        },
+      });
+    });
+  </script>
+</body>
+</html>
